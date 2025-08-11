@@ -13,19 +13,31 @@ import {
   ListItemText,
   Divider,
 } from '@mui/material';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'; // A fitting icon for an ML app
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import MenuIcon from '@mui/icons-material/Menu';
+import { useNavigate } from 'react-router-dom'; // React Router navigation
 
-const navItems = ['Home', 'About', 'History'];
+// Added "Blogs" here
+const navItems = [
+  { label: 'Train Model', path: '/' },
+  { label: 'Test Model', path: '/test' },
+  // { label: 'History', path: '/history' },
+  { label: 'Blogs', path: '/blog' }, // New blogs page
+];
 
 function NavBar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleDrawerToggle = () => {
     setMobileOpen((prevState) => !prevState);
   };
 
-  // This is the drawer (menu) that appears on mobile screens
+  const handleNavigation = (path) => {
+    navigate(path);
+    setMobileOpen(false); // Close drawer on mobile after click
+  };
+
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
       <Typography variant="h6" sx={{ my: 2 }}>
@@ -34,9 +46,12 @@ function NavBar() {
       <Divider />
       <List>
         {navItems.map((item) => (
-          <ListItem key={item} disablePadding>
-            <ListItemButton sx={{ textAlign: 'center' }}>
-              <ListItemText primary={item} />
+          <ListItem key={item.label} disablePadding>
+            <ListItemButton
+              sx={{ textAlign: 'center' }}
+              onClick={() => handleNavigation(item.path)}
+            >
+              <ListItemText primary={item.label} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -49,7 +64,7 @@ function NavBar() {
       <AppBar
         component="nav"
         sx={{
-          // Glassmorphism effect
+
           backgroundColor: 'rgba(255, 255, 255, 0.7)',
           backdropFilter: 'blur(10px)',
           boxShadow: 'none',
@@ -57,7 +72,7 @@ function NavBar() {
         }}
       >
         <Toolbar>
-          {/* Mobile Menu Icon */}
+
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -68,7 +83,7 @@ function NavBar() {
             <MenuIcon />
           </IconButton>
 
-          {/* Logo and Title */}
+
           <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
             <AutoAwesomeIcon sx={{ mr: 1, color: 'primary.main' }} />
             <Typography
@@ -76,30 +91,34 @@ function NavBar() {
               component="div"
               sx={{ color: 'text.primary', fontWeight: 'bold' }}
             >
-              {/* AutoML Platform */}
+
               MLoMatic
             </Typography>
           </Box>
 
-          {/* Desktop Navigation Links */}
+          {/* Desktop links */}
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
             {navItems.map((item) => (
-              <Button key={item} sx={{ color: 'text.primary' }}>
-                {item}
+              <Button
+                key={item.label}
+                sx={{ color: 'text.primary' }}
+                onClick={() => handleNavigation(item.path)}
+              >
+                {item.label}
               </Button>
             ))}
           </Box>
         </Toolbar>
       </AppBar>
 
-      {/* Mobile Drawer */}
+
       <nav>
         <Drawer
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
+            keepMounted: true,
           }}
           sx={{
             display: { xs: 'block', sm: 'none' },
@@ -109,13 +128,13 @@ function NavBar() {
           {drawer}
         </Drawer>
       </nav>
-      
-      {/* This Box is a spacer to push your main content below the navbar */}
+
       <Box component="main" sx={{ p: 3 }}>
-        <Toolbar /> 
+        <Toolbar />
       </Box>
     </Box>
   );
 }
 
 export default NavBar;
+"navbar.jsx"
