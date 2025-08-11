@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
-import { Dialog, DialogContent, DialogTitle, IconButton } from '@mui/material';
+import { colors, Dialog, DialogContent, DialogTitle, IconButton, useColorScheme } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ModelResults from './modelResults';
 import NavBar from './NavBar';
@@ -24,6 +24,8 @@ import {
 import axios from 'axios';
 import Loader from './Loader';
 import Footer from './Footer';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Define the models available for each problem type
 const modelOptions = {
@@ -115,7 +117,8 @@ function HomePage() {
         const data = results.data;
 
         if (!fields || data.length === 0) {
-          alert("Could not read the CSV file. Please ensure it's formatted correctly with a header row.");
+          // alert("Could not read the CSV file. Please ensure it's formatted correctly with a header row.");
+          toast.error("Failed to parse the CSV file. Please check the file format and console for errors.");
           return;
         }
 
@@ -133,7 +136,8 @@ function HomePage() {
       },
       error: (err) => {
         console.error("Papaparse Error:", err);
-        alert("Failed to parse the CSV file. Please check the file format and console for errors.");
+        toast.error("Failed to parse the CSV file.");
+        // alert("Failed to parse the CSV file. Please check the file format and console for errors.");
       }
     });
   }, []);
@@ -144,7 +148,8 @@ function HomePage() {
     // This is where you'll trigger the backend API call
 
     if (!file) {
-      alert("Please upload a file first");
+      // alert("Please upload a file first");
+      toast.error("Please upload a file first");
       return;
     }
 
@@ -168,11 +173,13 @@ function HomePage() {
       setTrainResults(response.data);
 
       console.log('Server Response:', response.data);
-      alert('Training request sent successfully! check the console.');
+      // alert('Training request sent successfully! check the console.');
+      toast.success("Model Trained Successfully!");
     }
     catch (err) {
       console.error('❌ Error sending training request:', err);
-      alert('An error occurred. Check the console for details.');
+      toast.error("something went wrong..");
+      // alert('An error occurred. Check the console for details.');
     } finally {
       setIsLoading(false);
       setIsTraining(false);
@@ -183,7 +190,8 @@ function HomePage() {
   const handleVisualize = async () => {
 
     if (!file) {
-      alert('Please Upload a file');
+      // alert('Please Upload a file');
+      toast.error("Please Upload a file");
       return;
     }
 
@@ -203,7 +211,8 @@ function HomePage() {
     }
     catch (err) {
       console.error(err);
-      alert('Error in Generating The report please check the console');
+      toast.error("Error in Generating The report please check the console.");
+      // alert('Error in Generating The report please check the console');
     }
     finally {
       setIsVisualizing(false);
@@ -216,6 +225,19 @@ function HomePage() {
     <>
 
       <NavBar></NavBar>
+
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+    />
 
       {isTraining && <Loader />}
       <Box sx={{ p: 4, maxWidth: '800px', margin: 'auto' }}>
