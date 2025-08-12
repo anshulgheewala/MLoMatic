@@ -6,7 +6,7 @@ import json
 import pickle
 import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score, RandomizedSearchCV
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.metrics import accuracy_score, r2_score, confusion_matrix, precision_score, recall_score, f1_score
 from sklearn.linear_model import LinearRegression, LogisticRegression, Ridge, Lasso
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
@@ -14,6 +14,8 @@ from sklearn.svm import SVC, SVR
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier,DecisionTreeRegressor
 from xgboost import XGBClassifier
+from sklearn.decomposition import PCA
+
 
 import warnings
 
@@ -48,10 +50,48 @@ def main():
     y = df[target_column]
     X = pd.get_dummies(X, drop_first=True)
 
+
     # Encode target for classification
     if problem_type == 'classification' and y.dtype == 'object':
         le = LabelEncoder()
         y = le.fit_transform(y)
+
+    # changes started here
+    numeric_cols = X.select_dtypes(include=['int64', 'float64']).columns
+    continuous_cols = [
+        col for col in numeric_cols
+        if X[col].nunique() > 5
+    ]
+    # print("Mean before scaling:", X[continuous_cols].mean().round(4).to_list(), file=sys.stderr)
+    # print("Std before scaling:", X[continuous_cols].std().round(4).to_list(), file=sys.stderr)
+
+    scaler = None
+    pca = None
+    pca_cols = continuous_cols 
+
+    if continuous_cols:
+        scaler = StandardScaler()
+        X[continuous_cols] = scaler.fit_transform(X[continuous_cols])
+
+        pca = PCA(n_components=0.95)  # Keep 95% variance
+        X_pca = pca.fit_transform(X[continuous_cols])
+        pca_col_names = [f'PC{i+1}' for i in range(X_pca.shape[1])]
+        X = X.drop(columns=continuous_cols).reset_index(drop=True)
+        X = pd.concat([X, pd.DataFrame(X_pca, columns=pca_col_names)], axis=1)
+        print("\n[Scaling + PCA Applied]", file=sys.stderr)
+        print("Scaled columns:", list(continuous_cols), file=sys.stderr)
+        print("PCA components kept:", pca.n_components_, file=sys.stderr)
+        print("Explained variance ratio:", pca.explained_variance_ratio_, file=sys.stderr)
+        print("----------------------\n", file=sys.stderr)
+    #     print("\n[Scaling Applied]", file=sys.stderr)
+    #     print("Scaled columns:", list(continuous_cols), file=sys.stderr)
+    #     print("Mean after scaling:", X[continuous_cols].mean().round(4).to_list(), file=sys.stderr)
+    #     print("Std after scaling:", X[continuous_cols].std().round(4).to_list(), file=sys.stderr)
+    # #     print("----------------------\n")
+    # else:
+    #     print("No Scaling has been done",file=sys.stderr)
+
+    # changes ended here
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.25, random_state=42
@@ -233,7 +273,13 @@ def main():
     model_filename = f'model_{pd.Timestamp.now().strftime("%Y%m%d_%H%M%S")}.pkl'
     model_path = f'uploads/{model_filename}'
     with open(model_path, 'wb') as f:
-        pickle.dump(best_model_info['model_object'], f)
+        pickle.dump({
+            'model': best_model_info['model_object'],
+            'scaler': scaler,
+            'pca': pca,
+            'pca_cols': pca_cols  # columns PCA was applied to
+        }, f)
+        # pickle.dump({'model':best_model_info['model_object'], 'scaler': scaler}, f)
 
     # Output
     output = {
