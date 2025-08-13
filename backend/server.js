@@ -103,8 +103,7 @@ app.use(express.json());
 
 // Serve generated reports
 app.use('/report', express.static(path.join(__dirname, 'reports')));
-
-// Check server status
+// Check server statuspyth
 app.get('/', (req, res) => {
   res.send('✅ Backend is running');
 });

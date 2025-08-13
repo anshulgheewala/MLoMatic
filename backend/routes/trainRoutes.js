@@ -11,12 +11,17 @@ const upload = multer({dest: 'uploads/'});
 router.post('/', upload.single('file'), (req, res)=>{
     const file = req.file;
 
-    const {targetColumn, problemType} = req.body;
+    const {targetColumn, problemType, replaceColumn, findValue, replaceValue} = req.body;
 
     const selectedModels = JSON.parse(req.body.selectedModels);
 
     const pythonExecutable = "C:\\Users\\anshu\\Desktop\\mlf1older\\backend\\venv\\Scripts\\python.exe"; // Use your absolute path
     const pythonScript = path.join(__dirname, '..', 'scripts', 'train_model.py');
+
+    // console.log(findValue);
+    // console.log(replaceValue);
+    
+    
 
     // Arguments passing
 
@@ -24,7 +29,10 @@ router.post('/', upload.single('file'), (req, res)=>{
     file.path,
     targetColumn,
     problemType,
-    JSON.stringify(selectedModels) // Pass the array as a JSON string
+    JSON.stringify(selectedModels), // Pass the array as a JSON string
+    replaceColumn || '',
+    findValue || '',
+    replaceValue || ''
   ];
 
   const pyProcess = spawn(pythonExecutable, [pythonScript, ...args]);
