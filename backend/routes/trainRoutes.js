@@ -17,7 +17,7 @@ router.post('/', upload.single('file'), (req, res)=>{
 
     // const pythonExecutable = "C:\\Users\\anshu\\Desktop\\mlf1older\\backend\\venv\\Scripts\\python.exe"; // Use your absolute path
     const pythonExecutable = 'python3'; // Use your absolute path
-    const pythonScript = path.join(__dirname, '..', 'scripts', 'train_model.py');
+    const pythonScript = path.join(__dirname, '..', 'scripts', 'train_Model.py');
 
     // console.log(findValue);
     // console.log(replaceValue);
