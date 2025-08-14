@@ -180,7 +180,7 @@ export default function ModelResults({ results }) {
     try {
       const filename = model_path.split("/").pop();
       const response = await axios.get(
-        `http://localhost:5000/download-model/${filename}`,
+        `https://mlomatic.onrender.com/download-model/${filename}`,
         { responseType: "blob" }
       );
       saveAs(response.data, filename);
