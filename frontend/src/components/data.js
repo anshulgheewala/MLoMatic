@@ -1,7 +1,7 @@
 // data.js
 
 export const supervisedArticles = {
-  classification: {
+  "Classification": {
     "Logistic Regression": [
       {
         title: "Logistic Regression Explained: From Basics to Advanced Hyperparameter Tuning",
@@ -107,7 +107,7 @@ export const supervisedArticles = {
 ],
 
   },
-  regression: {
+  "Regression": {
     "Linear Regression": [
   {
     title: "Linear Regression in Machine Learning",
@@ -129,7 +129,7 @@ export const supervisedArticles = {
   }
 ],
 
-    "ridge": [
+    "Ridge": [
   {
     title: "Ridge Regression Algorithm in Machine Learning",
     link: "https://medium.com/@dilipkumar/ridge-regression-algorithm-in-machine-learning-6355bbbf02fd",
@@ -150,7 +150,7 @@ export const supervisedArticles = {
   }
 ],
 
-"lasso": [
+"Lasso": [
   {
     title: "When Less is More: A Hands-on Guide to Ridge vs Lasso Regression",
     link: "https://medium.com/@dey.mallika/when-less-is-more-a-hands-on-guide-to-ridge-vs-lasso-regression-c22cff9bcf29",
@@ -171,6 +171,50 @@ export const supervisedArticles = {
   }
 ]
 
+  },
+  "Dimensionality Reduction": {
+    "Principal Component Analysis (PCA)": [
+      {
+        title: "Principal Component Analysis for Beginners",
+        link: "https://medium.com/thedeephub/principle-component-analysis-for-beginners-aadfd3c63309",
+        description: "Beginner-friendly explanation of PCA with clear examples and visual aids.",
+        author: "The Deep Hub"
+      },
+      {
+        title: "Principal Component Analysis (PCA) Mathematics",
+        link: "https://pub.towardsai.net/principle-component-analysis-pca-mathematics-9cfba3c66b45",
+        description: "Mathematical breakdown of PCA, covering eigenvalues, eigenvectors, and transformations.",
+        author: "Towards AI"
+      },
+      {
+        title: "Background Removal with PCA",
+        link: "https://medium.com/@_monitsharma/computational-linear-algebra-background-removal-with-principle-component-analysis-c0bed850b6c",
+        description: "A practical application of PCA for image background removal using computational linear algebra.",
+        author: "Monit Sharma"
+      }
+    ]
+  },
+  "Resampling": {
+    "SMOTE (Synthetic Minority Over-sampling Technique)": [
+      {
+        title: "Synthetic Minority Over-sampling Technique (SMOTE)",
+        link: "https://medium.com/@corymaklin/synthetic-minority-over-sampling-technique-smote-7d419696b88c",
+        description: "Intro to SMOTE: generates synthetic minority class examples to up-sample while avoiding overfitting.",
+        author: "Cory Maklin"
+      },
+      {
+        title: "Comparison of Scalers in Python by Creating Real-World Synthetic Data",
+        link: "https://medium.com/python-in-plain-english/comparison-of-scalers-in-python-by-creating-real-world-synthetic-data-d6e99767fd25",
+        description: "Uses synthetic data to compare different scaler techniques in Python, illustrating effects on pre-processing.",
+        author: "Python in Plain English"
+      },
+      {
+        title: "Writing Synthetic Monitoring Tests for Your Services Using Gemini",
+        link: "https://medium.com/google-cloud/codelab-writing-synthetic-monitoring-tests-for-your-services-using-gemini-cae542b12547",
+        description: "Guide to using synthesized testing scripts for monitoring services with Gemini—less about SMOTE but helpful for understanding synthetic data tests.",
+        author: "Google Cloud"
+      }
+    ]
   }
 };
-// "the data.js"
+// "data.js file"

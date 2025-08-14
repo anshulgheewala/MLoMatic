@@ -19,8 +19,7 @@ import { useNavigate } from 'react-router-dom'; // React Router navigation
 
 // Added "Blogs" here
 const navItems = [
-  { label: 'Train Model', path: '/' },
-  { label: 'Test Model', path: '/test' },
+  { label: 'Train', path: '/' },
   // { label: 'History', path: '/history' },
   { label: 'Blogs', path: '/blog' }, // New blogs page
 ];

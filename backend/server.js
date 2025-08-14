@@ -91,6 +91,7 @@ import { exec } from 'child_process';
 import trainRoute from './routes/trainRoutes.js'; // note the .js extension for ES modules
 import { fileURLToPath } from 'url';
 import cors from 'cors';
+import predictRoutes from './routes/predictRoutes.js'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -157,6 +158,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 });
 
 app.use('/train', trainRoute);
+app.use('/predict', predictRoutes);
 
 // Start server
 const PORT = 5000;
