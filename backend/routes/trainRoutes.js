@@ -15,7 +15,8 @@ router.post('/', upload.single('file'), (req, res)=>{
 
     const selectedModels = JSON.parse(req.body.selectedModels);
 
-    const pythonExecutable = "C:\\Users\\anshu\\Desktop\\mlf1older\\backend\\venv\\Scripts\\python.exe"; // Use your absolute path
+    // const pythonExecutable = "C:\\Users\\anshu\\Desktop\\mlf1older\\backend\\venv\\Scripts\\python.exe"; // Use your absolute path
+    const pythonExecutable = 'python3'; // Use your absolute path
     const pythonScript = path.join(__dirname, '..', 'scripts', 'train_model.py');
 
     // console.log(findValue);
@@ -58,9 +59,9 @@ router.post('/', upload.single('file'), (req, res)=>{
     try {
       // The Python script prints a JSON string, so we parse it
       const parsedResult = JSON.parse(result);
-      res.status(200).json(parsedResult);
+      return res.status(200).json(parsedResult);
     } catch (e) {
-      res.status(500).json({ error: 'Failed to parse Python script output.' });
+      return res.status(500).json({ error: 'Failed to parse Python script output.' });
     }
   });
 });
