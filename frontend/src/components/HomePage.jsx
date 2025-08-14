@@ -944,7 +944,7 @@ function HomePage() {
     }
     try {
       const absoluteModelPath = `C:\\Users\\anshu\\Desktop\\mlf1older\\backend\\${trainResults.model_path}`;
-      const response = await axios.post('http://localhost:5000/predict', {
+      const response = await axios.post('https://mlomatic.onrender.com/predict', {
         modelPath: absoluteModelPath,
         inputData,
       });
@@ -1037,7 +1037,7 @@ function HomePage() {
     formData.append('replaceValue', replaceValue || '');
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/train', formData, {
+      const response = await axios.post('https://mlomatic.onrender.com/train', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setTrainResults(response.data);
@@ -1061,10 +1061,10 @@ function HomePage() {
     formData.append('file', file);
     try {
       setIsVisualizing(true);
-      const response = await axios.post('http://localhost:5000/upload', formData, {
+      const response = await axios.post('https://mlomatic.onrender.com/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      const fullUrl = `http://localhost:5000${response.data.reportUrl}`;
+      const fullUrl = `https://mlomatic.onrender.com${response.data.reportUrl}`;
       setReportUrl(fullUrl);
     } catch (err) {
       console.error(err);

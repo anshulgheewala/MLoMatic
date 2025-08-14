@@ -11,7 +11,7 @@ router.post('/', (req, res) => {
     return res.status(400).json({ error: 'Missing model path or input data' });
   }
 
-  const pythonPath = process.env.PYTHON_PATH || 'C:\\Users\\anshu\\Desktop\\mlf1older\\backend\\venv\\Scripts\\python.exe';
+  const pythonPath = 'python3';
   const predictScript = path.resolve('scripts', 'predict.py');
 
   const pyProcess = spawn(pythonPath, [predictScript, modelPath]);
