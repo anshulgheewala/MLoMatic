@@ -1201,7 +1201,7 @@ function HomePage() {
     });
   }, []);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({accept: { "text/csv": [".csv"] },onDrop});
 
   const handleReplaceColumnChange = (col) => {
     setReplaceColumn(col);
