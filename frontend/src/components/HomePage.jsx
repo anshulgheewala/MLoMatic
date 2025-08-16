@@ -824,7 +824,7 @@
 //   {/* </Select>
 //             // </FormControl> */}
 
-            
+
 
 //             {/* Buttons */}
 //             <Box sx={{ display: 'flex', gap: 2, justifyContent:'center'}}>
@@ -1084,7 +1084,7 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
-import { Dialog, DialogContent, DialogTitle, IconButton, InputLabel, Select, MenuItem, FormControl, RadioGroup, FormControlLabel, Radio, Typography, Chip, Box, Button ,TextField} from '@mui/material';
+import { Dialog, DialogContent, DialogTitle, IconButton, InputLabel, Select, MenuItem, FormControl, RadioGroup, FormControlLabel, Radio, Typography, Chip, Box, Button, TextField } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ModelResults from './ModelResults';
 import NavBar from './NavBar';
@@ -1116,6 +1116,7 @@ function HomePage() {
   const [regressionColumns, setRegressionColumns] = useState([]);
   const [inputData, setInputData] = useState({});
   const [prediction, setPrediction] = useState(null);
+  const [predicting, setPredicting] = useState(false);
 
   // Data cleaning states
   const [replaceColumn, setReplaceColumn] = useState('');
@@ -1133,6 +1134,7 @@ function HomePage() {
       toast.error("Please train a model first!");
       return;
     }
+    setPredicting(true);
     try {
       const absoluteModelPath = `${trainResults.model_path}`;
       const response = await axios.post(`${API_BASE_URL}/predict`, {
@@ -1144,6 +1146,8 @@ function HomePage() {
     } catch (error) {
       console.error(error);
       toast.error("Prediction failed!");
+    }finally{
+      setPredicting(false);
     }
   };
 
@@ -1381,8 +1385,91 @@ function HomePage() {
 
             {trainResults && <ModelResults results={trainResults} />}
 
-            {/* Prediction Form */}
+            {/* Prediction Form
             {trainResults && (
+              <Box
+                sx={{
+                  mt: 4,
+                  p: 3,
+                  border: '1px solid #ddd',
+                  borderRadius: 2,
+                  boxShadow: 2,
+                  backgroundColor: '#fafafa'
+                }}
+              >
+                <Typography variant="h5" gutterBottom fontWeight="bold">
+                  Predict on New Data
+                </Typography>
+
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                    gap: 2,
+                    mt: 2
+                  }}
+                >
+                  {headers
+                    .filter((h) => h !== targetColumn)
+                    .map((col) => (
+                      <TextField
+                        key={col}
+                        label={col}
+                        variant="outlined"
+                        fullWidth
+                        size="small"
+                        placeholder={`Enter value for ${col}`}
+                        value={inputData[col] || ''}
+                        onChange={(e) => handleInputChange(col, e.target.value)}
+                      />
+                    ))}
+                </Box>
+
+                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    sx={{ borderRadius: 2, textTransform: 'none', px: 4 }}
+                    onClick={handlePredict}
+                    disabled={Object.keys(inputData).length === 0}
+                  >
+                    Predict
+                  </Button>
+                </Box>
+
+                {prediction && (
+                  <Box
+                    sx={{
+                      mt: 3,
+                      p: 2,
+                      border: '1px solid #ccc',
+                      borderRadius: 2,
+                      backgroundColor: 'white',
+                      boxShadow: 1
+                    }}
+                  >
+                    <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+                      Prediction Result:
+                    </Typography>
+                    <pre
+                      style={{
+                        margin: 0,
+                        background: '#f5f5f5',
+                        padding: '8px',
+                        borderRadius: '4px',
+                        overflowX: 'auto'
+                      }}
+                    >
+                      The predicted {targetColumn} is {Array.isArray(prediction) ? prediction[0] : prediction}
+                    </pre>
+                  </Box>
+                )}
+              </Box>
+            )} */}
+
+            {/* Prediction Form */}
+{trainResults && (
   <Box 
     sx={{ 
       mt: 4, 
@@ -1393,7 +1480,7 @@ function HomePage() {
       backgroundColor: '#fafafa' 
     }}
   >
-    <Typography variant="h5" gutterBottom fontWeight="bold">
+    <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold" }}>
       Predict on New Data
     </Typography>
 
@@ -1407,18 +1494,35 @@ function HomePage() {
     >
       {headers
         .filter((h) => h !== targetColumn)
-        .map((col) => (
-          <TextField
-            key={col}
-            label={col}
-            variant="outlined"
-            fullWidth
-            size="small"
-            placeholder={`Enter value for ${col}`}
-            value={inputData[col] || ''}
-            onChange={(e) => handleInputChange(col, e.target.value)}
-          />
-        ))}
+        .map((col) => {
+          const isCategorical = classificationColumns.includes(col);
+          const values = Array.from(new Set(parsedData.map(row => row[col]).filter(v => v !== "" && v != null)));
+
+          return isCategorical ? (
+            <FormControl key={col} fullWidth size="small">
+              <InputLabel>{col}</InputLabel>
+              <Select
+                value={inputData[col] || ""}
+                onChange={(e) => handleInputChange(col, e.target.value)}
+              >
+                {values.map((val, idx) => (
+                  <MenuItem key={idx} value={val}>{String(val)}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ) : (
+            <TextField
+              key={col}
+              label={col}
+              variant="outlined"
+              fullWidth
+              size="small"
+              placeholder={`Enter value for ${col}`}
+              value={inputData[col] || ""}
+              onChange={(e) => handleInputChange(col, e.target.value)}
+            />
+          );
+        })}
     </Box>
 
     <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
@@ -1428,9 +1532,9 @@ function HomePage() {
         size="large" 
         sx={{ borderRadius: 2, textTransform: 'none', px: 4 }}
         onClick={handlePredict}
-        disabled={Object.keys(inputData).length === 0}
+        disabled={predicting || Object.keys(inputData).length === 0}
       >
-        Predict
+        {predicting ? "Predicting..." : "Predict"}
       </Button>
     </Box>
 
@@ -1445,7 +1549,7 @@ function HomePage() {
           boxShadow: 1 
         }}
       >
-        <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+        <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: "bold" }}>
           Prediction Result:
         </Typography>
         <pre 

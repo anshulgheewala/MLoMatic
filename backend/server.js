@@ -199,6 +199,7 @@ const upload = multer({ dest: UPLOADS_DIR });
 app.use(cors({
   origin: "https://mlomatic-frontend.onrender.com"
 }));
+// app.use(cors());
 app.use(express.json());
 
 // Serve generated reports

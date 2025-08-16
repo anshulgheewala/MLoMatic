@@ -1321,6 +1321,12 @@ def main():
 
         if problem_type == 'classification':
             y_pred = best_estimator.predict(X_test)
+            if le is not None:
+                y_pred_labels = le.inverse_transform(y_pred)
+                y_test_labels = le.inverse_transform(y_test)
+            else:
+                y_pred_labels = y_pred
+                y_test_labels = y_test
             cm = confusion_matrix(y_test, y_pred).tolist()
             precision = precision_score(y_test, y_pred, average='weighted', zero_division=0)
             recall = recall_score(y_test, y_pred, average='weighted', zero_division=0)
@@ -1330,6 +1336,8 @@ def main():
             precision = None
             recall = None
             f1 = None
+            y_pred_labels = None
+            y_test_labels = None
 
         results[model_name] = {
             'cv_score': cv_score,
@@ -1340,7 +1348,9 @@ def main():
             'confusion_matrix': cm,
             'precision': precision,
             'recall': recall,
-            'f1_score': f1
+            'f1_score': f1,
+            'y_pred': y_pred_labels.tolist() if y_pred_labels is not None else None,
+            'y_test': y_test_labels.tolist() if y_test_labels is not None else None
         }
 
         if test_score > best_model_info['score']:
@@ -1362,6 +1372,7 @@ def main():
             'pca': pca,
             'pca_cols': pca_cols,
             'feature_columns': feature_columns,
+            'label_encoder': le
         }, f)
 
     output = {
