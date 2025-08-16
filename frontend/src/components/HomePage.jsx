@@ -892,6 +892,195 @@
 
 // src/pages/HomePage.js
 
+
+
+// this is newwer one
+
+
+
+
+// import React, { useState, useCallback } from 'react';
+// import { useDropzone } from 'react-dropzone';
+// import Papa from 'papaparse';
+// import { Dialog, DialogContent, DialogTitle, IconButton, InputLabel, Select, MenuItem, FormControl, RadioGroup, FormControlLabel, Radio, Typography, Chip, Box, Button ,TextField} from '@mui/material';
+// import CloseIcon from '@mui/icons-material/Close';
+// import ModelResults from './modelResults';
+// import NavBar from './NavBar';
+// import axios from 'axios';
+// import Loader from './Loader';
+// import Footer from './Footer';
+// import { ToastContainer, toast } from 'react-toastify';
+// import 'react-toastify/dist/ReactToastify.css';
+
+// const modelOptions = {
+//   classification: ['Logistic Regression', 'Random Forest', 'Support Vector Machine', 'AdaBoost', 'XGBoost', 'Decission Tree'],
+//   regression: ['Linear Regression', 'Ridge', 'Lasso', 'Random Forest', 'Support Vector Machine', 'Decission Tree'],
+// };
+
+// function HomePage() {
+//   const [file, setFile] = useState(null);
+//   const [headers, setHeaders] = useState([]);
+//   const [targetColumn, setTargetColumn] = useState('');
+//   const [problemType, setProblemType] = useState('classification');
+//   const [selectedModels, setSelectedModels] = useState([]);
+//   const [isVisualizing, setIsVisualizing] = useState(false);
+//   const [reportUrl, setReportUrl] = useState('');
+//   const [isLoading, setIsLoading] = useState(true);
+//   const [trainResults, setTrainResults] = useState(null);
+//   const [isTraining, setIsTraining] = useState(false);
+//   const [classificationColumns, setClassificationColumns] = useState([]);
+//   const [regressionColumns, setRegressionColumns] = useState([]);
+//   const [inputData, setInputData] = useState({});
+//   const [prediction, setPrediction] = useState(null);
+
+//   // Data cleaning states
+//   const [replaceColumn, setReplaceColumn] = useState('');
+//   const [findValue, setFindValue] = useState('');
+//   const [replaceValue, setReplaceValue] = useState('');
+//   const [uniqueColumnValues, setUniqueColumnValues] = useState([]);
+//   const [parsedData, setParsedData] = useState([]);
+
+//   const handleInputChange = (field, value) => {
+//     setInputData(prev => ({ ...prev, [field]: value }));
+//   };
+
+//   const handlePredict = async () => {
+//     if (!trainResults || !trainResults.model_path) {
+//       toast.error("Please train a model first!");
+//       return;
+//     }
+//     try {
+//       const absoluteModelPath = `C:\\Users\\anshu\\Desktop\\mlf1older\\backend\\${trainResults.model_path}`;
+//       const response = await axios.post('https://mlomatic.onrender.com/predict', {
+//         modelPath: absoluteModelPath,
+//         inputData,
+//       });
+//       setPrediction(response.data.prediction);
+//       toast.success("Prediction successful!");
+//     } catch (error) {
+//       console.error(error);
+//       toast.error("Prediction failed!");
+//     }
+//   };
+
+//   const analyzeColumns = (data, fields) => {
+//     const classCols = [];
+//     const regressCols = [];
+//     const CLASSIFICATION_THRESHOLD = 20;
+//     fields.forEach(field => {
+//       const values = data.map(row => row[field]).filter(val => val != null && val !== '');
+//       if (values.length === 0) return;
+//       const isNumeric = values.every(val => !isNaN(parseFloat(val)) && isFinite(val));
+//       if (isNumeric) {
+//         const uniqueValues = new Set(values.map(v => parseFloat(v))).size;
+//         if (uniqueValues <= CLASSIFICATION_THRESHOLD) {
+//           classCols.push(field);
+//         } else {
+//           regressCols.push(field);
+//         }
+//       } else {
+//         classCols.push(field);
+//       }
+//     });
+//     return { classification: classCols, regression: regressCols };
+//   };
+
+//   const onDrop = useCallback((acceptedFiles) => {
+//     const uploadedFile = acceptedFiles[0];
+//     setFile(uploadedFile);
+//     Papa.parse(uploadedFile, {
+//       header: true,
+//       skipEmptyLines: true,
+//       complete: (results) => {
+//         const fields = results.meta.fields || [];
+//         const data = results.data;
+//         setParsedData(data);
+//         if (!fields || data.length === 0) {
+//           toast.error("Failed to parse the CSV file. Please check the file format.");
+//           return;
+//         }
+//         const { classification, regression } = analyzeColumns(data, fields);
+//         setHeaders(fields);
+//         setClassificationColumns(classification);
+//         setRegressionColumns(regression);
+//         setTargetColumn('');
+//         setSelectedModels([]);
+//       },
+//       error: (err) => {
+//         console.error("Papaparse Error:", err);
+//         toast.error("Failed to parse the CSV file.");
+//       }
+//     });
+//   }, []);
+
+//   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
+//   const handleReplaceColumnChange = (col) => {
+//     setReplaceColumn(col);
+//     if (!col) {
+//       setUniqueColumnValues([]);
+//       return;
+//     }
+//     const values = parsedData.map(row => row[col]).filter(v => v != null && v !== '');
+//     const uniqueVals = Array.from(new Set(values));
+//     setUniqueColumnValues(uniqueVals);
+//     setFindValue('');
+//     setReplaceValue('');
+//   };
+
+//   const handleTrain = async () => {
+//     if (!file) {
+//       toast.error("Please upload a file first");
+//       return;
+//     }
+//     setIsTraining(true);
+//     const formData = new FormData();
+//     formData.append('file', file);
+//     formData.append('targetColumn', targetColumn);
+//     formData.append('problemType', problemType);
+//     formData.append('selectedModels', JSON.stringify(selectedModels));
+//     formData.append('replaceColumn', replaceColumn);
+//     formData.append('findValue', findValue);
+//     formData.append('replaceValue', replaceValue || '');
+//     setIsLoading(true);
+//     try {
+//       const response = await axios.post('https://mlomatic.onrender.com/train', formData, {
+//         headers: { 'Content-Type': 'multipart/form-data' },
+//       });
+//       setTrainResults(response.data);
+//       toast.success("Model Trained Successfully!");
+//     } catch (err) {
+//       console.error('❌ Error sending training request:', err);
+//       toast.error("Something went wrong..");
+//     } finally {
+//       setIsLoading(false);
+//       setIsTraining(false);
+//       setTimeout(() => setIsTraining(false), 500);
+//     }
+//   };
+
+//   const handleVisualize = async () => {
+//     if (!file) {
+//       toast.error("Please Upload a file");
+//       return;
+//     }
+//     const formData = new FormData();
+//     formData.append('file', file);
+//     try {
+//       setIsVisualizing(true);
+//       const response = await axios.post('https://mlomatic.onrender.com/upload', formData, {
+//         headers: { 'Content-Type': 'multipart/form-data' },
+//       });
+//       const fullUrl = `https://mlomatic.onrender.com${response.data.reportUrl}`;
+//       setReportUrl(fullUrl);
+//     } catch (err) {
+//       console.error(err);
+//       toast.error("Error in Generating The report.");
+//     } finally {
+//       setIsVisualizing(false);
+//     }
+//   };
+
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
@@ -904,6 +1093,8 @@ import Loader from './Loader';
 import Footer from './Footer';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const modelOptions = {
   classification: ['Logistic Regression', 'Random Forest', 'Support Vector Machine', 'AdaBoost', 'XGBoost', 'Decission Tree'],
@@ -943,8 +1134,8 @@ function HomePage() {
       return;
     }
     try {
-      const absoluteModelPath = `C:\\Users\\anshu\\Desktop\\mlf1older\\backend\\${trainResults.model_path}`;
-      const response = await axios.post('https://mlomatic.onrender.com/predict', {
+      const absoluteModelPath = `${trainResults.model_path}`;
+      const response = await axios.post(`${API_BASE_URL}/predict`, {
         modelPath: absoluteModelPath,
         inputData,
       });
@@ -1037,7 +1228,7 @@ function HomePage() {
     formData.append('replaceValue', replaceValue || '');
     setIsLoading(true);
     try {
-      const response = await axios.post('https://mlomatic.onrender.com/train', formData, {
+      const response = await axios.post(`${API_BASE_URL}/train`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setTrainResults(response.data);
@@ -1061,10 +1252,10 @@ function HomePage() {
     formData.append('file', file);
     try {
       setIsVisualizing(true);
-      const response = await axios.post('https://mlomatic.onrender.com/upload', formData, {
+      const response = await axios.post(`${API_BASE_URL}/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      const fullUrl = `https://mlomatic.onrender.com${response.data.reportUrl}`;
+      const fullUrl = `${API_BASE_URL}${response.data.reportUrl}`;
       setReportUrl(fullUrl);
     } catch (err) {
       console.error(err);

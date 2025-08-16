@@ -29,3 +29,5 @@ backend/uploads/*
 
 backend/reports/*
 !reports/.gitkeep
+
+.env/
