@@ -1078,6 +1078,9 @@ def main():
     find_value = sys.argv[6]
     replace_value = sys.argv[7]
 
+    scaler = None
+    pca = None
+    pca_cols = []
     # Environment-controlled values
     test_size = float(os.getenv("TRAIN_TEST_SPLIT", "0.25"))
     random_state = int(os.getenv("RANDOM_STATE", "42"))
@@ -1310,6 +1313,9 @@ def main():
             best_estimator = model
             best_estimator.fit(X_train, y_train)
             best_params = {}
+            cv = min(5, len(X_train))
+            if cv < 2:
+                cv = 2
             cv_score = cross_val_score(best_estimator, X_train, y_train, cv=5, scoring=scoring_metric).mean()
 
         train_score = best_estimator.score(X_train, y_train)
@@ -1318,6 +1324,8 @@ def main():
         generalization_gap = abs(train_score - test_score)
         if generalization_gap > 0.1:
             test_score -= generalization_gap * 0.5
+
+        le = None
 
         if problem_type == 'classification':
             y_pred = best_estimator.predict(X_test)
