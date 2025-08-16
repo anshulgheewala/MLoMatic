@@ -1086,7 +1086,7 @@ import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
 import { Dialog, DialogContent, DialogTitle, IconButton, InputLabel, Select, MenuItem, FormControl, RadioGroup, FormControlLabel, Radio, Typography, Chip, Box, Button ,TextField} from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import ModelResults from './modelResults';
+import ModelResults from './ModelResults';
 import NavBar from './NavBar';
 import axios from 'axios';
 import Loader from './Loader';

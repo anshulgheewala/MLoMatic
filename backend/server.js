@@ -196,7 +196,9 @@ const PORT = process.env.PORT || 5000;
 
 const upload = multer({ dest: UPLOADS_DIR });
 
-app.use(cors());
+app.use(cors({
+  origin: "https://mlomatic-frontend.onrender.com"
+}));
 app.use(express.json());
 
 // Serve generated reports
