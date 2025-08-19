@@ -1,50 +1,42 @@
 // const express = require('express');
-// const multer = require('multer')
-// const {spawn} = require('child_process');
-// const path = require('path')
-// import 'dotenv/config';
-
+// const multer = require('multer');
+// const { spawn } = require('child_process');
+// const path = require('path');
+// require('dotenv').config();  // load .env
 
 // const router = express.Router();
 
-// const upload = multer({dest: 'uploads/'});
+// const UPLOADS_DIR = process.env.UPLOADS_DIR || 'uploads';
+// const PYTHON_PATH = process.env.PYTHON_PATH || 'python';
+// const TRAIN_SCRIPT = process.env.TRAIN_SCRIPT || path.join(__dirname, '..', 'scripts', 'train_Model.py');
 
-// router.post('/', upload.single('file'), (req, res)=>{
-//     const file = req.file;
+// const upload = multer({ dest: UPLOADS_DIR });
 
-//     const {targetColumn, problemType, replaceColumn, findValue, replaceValue} = req.body;
+// router.post('/', upload.single('file'), (req, res) => {
+//   const file = req.file;
 
-//     const selectedModels = JSON.parse(req.body.selectedModels);
+//   const { targetColumn, problemType, replaceColumn, findValue, replaceValue } = req.body;
+//   const selectedModels = JSON.parse(req.body.selectedModels);
 
-//     // const pythonExecutable = "C:\\Users\\anshu\\Desktop\\mlf1older\\backend\\venv\\Scripts\\python.exe"; // Use your absolute path
-//     const pythonExecutable = 'python3'; // Use your absolute path
-//     const pythonScript = path.join(__dirname, '..', 'scripts', 'train_Model.py');
-
-//     // console.log(findValue);
-//     // console.log(replaceValue);
-    
-    
-
-//     // Arguments passing
-
-//     const args = [
+//   // Arguments to pass to Python
+//   const args = [
 //     file.path,
 //     targetColumn,
 //     problemType,
-//     JSON.stringify(selectedModels), // Pass the array as a JSON string
+//     JSON.stringify(selectedModels), // Pass array as JSON string
 //     replaceColumn || '',
 //     findValue || '',
 //     replaceValue || ''
 //   ];
 
-//   const pyProcess = spawn(pythonExecutable, [pythonScript, ...args]);
+//   const pyProcess = spawn(PYTHON_PATH, [TRAIN_SCRIPT, ...args]);
 
 //   pyProcess.on('error', (err) => {
-//   console.error('❌ Failed to start subprocess.', err);
-//   return res.status(500).json({ error: 'Failed to start the training process. Check the python executable path.' });
-// });
+//     console.error('❌ Failed to start subprocess.', err);
+//     return res.status(500).json({ error: 'Failed to start the training process. Check the python executable path.' });
+//   });
 
-//    let result = '';
+//   let result = '';
 //   pyProcess.stdout.on('data', (data) => {
 //     result += data.toString();
 //   });
@@ -58,8 +50,7 @@
 //       return res.status(500).json({ error: 'Failed to train model.' });
 //     }
 //     try {
-//       // The Python script prints a JSON string, so we parse it
-//       const parsedResult = JSON.parse(result);
+//       const parsedResult = JSON.parse(result); // Expect JSON output from Python
 //       return res.status(200).json(parsedResult);
 //     } catch (e) {
 //       return res.status(500).json({ error: 'Failed to parse Python script output.' });
@@ -74,7 +65,8 @@ const express = require('express');
 const multer = require('multer');
 const { spawn } = require('child_process');
 const path = require('path');
-require('dotenv').config();  // load .env
+const fs = require('fs');
+require('dotenv').config();
 
 const router = express.Router();
 
@@ -82,30 +74,52 @@ const UPLOADS_DIR = process.env.UPLOADS_DIR || 'uploads';
 const PYTHON_PATH = process.env.PYTHON_PATH || 'python';
 const TRAIN_SCRIPT = process.env.TRAIN_SCRIPT || path.join(__dirname, '..', 'scripts', 'train_Model.py');
 
+// Ensure upload dir exists
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+
 const upload = multer({ dest: UPLOADS_DIR });
 
 router.post('/', upload.single('file'), (req, res) => {
   const file = req.file;
+  if (!file) return res.status(400).json({ error: 'No file uploaded' });
 
-  const { targetColumn, problemType, replaceColumn, findValue, replaceValue } = req.body;
-  const selectedModels = JSON.parse(req.body.selectedModels);
+  const { targetColumn, problemType, replaceColumn, findValue, replaceValue, cleaningRules } = req.body;
 
-  // Arguments to pass to Python
+  // Parse selectedModels
+  let selectedModels = [];
+  try {
+    selectedModels = JSON.parse(req.body.selectedModels || '[]');
+  } catch (e) {
+    return res.status(400).json({ error: 'Invalid selectedModels JSON' });
+  }
+
+  // Parse cleaningRules
+  let parsedCleaningRules = [];
+  try {
+    parsedCleaningRules = cleaningRules ? JSON.parse(cleaningRules) : [];
+    if (!Array.isArray(parsedCleaningRules)) {
+      return res.status(400).json({ error: 'Cleaning rules must be an array.' });
+    }
+  } catch (err) {
+    return res.status(400).json({ error: 'Invalid cleaningRules JSON' });
+  }
+
+  // Arguments for Python
   const args = [
     file.path,
     targetColumn,
     problemType,
-    JSON.stringify(selectedModels), // Pass array as JSON string
-    replaceColumn || '',
-    findValue || '',
-    replaceValue || ''
+    JSON.stringify(selectedModels),
+    JSON.stringify(parsedCleaningRules)
   ];
 
   const pyProcess = spawn(PYTHON_PATH, [TRAIN_SCRIPT, ...args]);
 
   pyProcess.on('error', (err) => {
     console.error('❌ Failed to start subprocess.', err);
-    return res.status(500).json({ error: 'Failed to start the training process. Check the python executable path.' });
+    return res.status(500).json({ error: 'Failed to start the training process. Check Python path.' });
   });
 
   let result = '';
@@ -122,13 +136,16 @@ router.post('/', upload.single('file'), (req, res) => {
       return res.status(500).json({ error: 'Failed to train model.' });
     }
     try {
-      const parsedResult = JSON.parse(result); // Expect JSON output from Python
+      const parsedResult = JSON.parse(result.trim()); // Expect only JSON
       return res.status(200).json(parsedResult);
     } catch (e) {
+      console.error('❌ JSON parse error', e);
       return res.status(500).json({ error: 'Failed to parse Python script output.' });
     }
   });
 });
 
 module.exports = router;
+
+
 
