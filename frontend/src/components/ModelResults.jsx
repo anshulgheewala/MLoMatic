@@ -110,11 +110,12 @@ export default function ModelResults({ results }) {
                   <TableCell>
                     {res.best_params && Object.keys(res.best_params).length > 0
                       ? Object.entries(res.best_params).map(([k, v]) => (
-                          <div key={k}>
-                            <strong>{k}:</strong> {v.toString()}
-                          </div>
-                        ))
+                        <div key={k}>
+                          <strong>{k}:</strong> {v != null ? v.toString() : "N/A"}
+                        </div>
+                      ))
                       : "Default"}
+
                   </TableCell>
                 </TableRow>
               ))}
