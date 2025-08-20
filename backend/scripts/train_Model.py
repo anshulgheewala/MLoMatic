@@ -365,6 +365,7 @@ from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from xgboost import XGBClassifier
 from sklearn.decomposition import PCA
 from imblearn.over_sampling import SMOTE
+from sklearn.model_selection import RandomizedSearchCV
 import warnings
 import os
 from dotenv import load_dotenv
@@ -626,18 +627,34 @@ def main():
         model = model_map[model_name]
         params = param_grids.get(model_name, {})
 
+
         if params:
-            grid = GridSearchCV(
+
+            rand = RandomizedSearchCV(
                 estimator=model,
-                param_grid=params,
-                cv=5,
+                param_distributions=params,
+                n_iter=10,             # try only 10 random combos
+                cv=3,                  # also reduce folds
                 scoring=scoring_metric,
-                n_jobs=n_jobs
+                n_jobs=1,              # use 1 to save memory on Render free plan
+                random_state=42
             )
-            grid.fit(X_train, y_train)
-            best_estimator = grid.best_estimator_
-            best_params = grid.best_params_
-            cv_score = grid.best_score_
+            rand.fit(X_train, y_train)
+            best_estimator = rand.best_estimator_
+            best_params = rand.best_params_
+            cv_score = rand.best_score_
+
+            # grid = GridSearchCV(
+            #     estimator=model,
+            #     param_grid=params,
+            #     cv=5,
+            #     scoring=scoring_metric,
+            #     n_jobs=n_jobs
+            # )
+            # grid.fit(X_train, y_train)
+            # best_estimator = grid.best_estimator_
+            # best_params = grid.best_params_
+            # cv_score = rand.best_score_
         else:
             # Fit once for cv, then refit on all train (GridSearchCV would refit automatically)
             cv_score = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring_metric, n_jobs=n_jobs).mean()
