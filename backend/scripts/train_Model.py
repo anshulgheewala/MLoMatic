@@ -304,7 +304,7 @@ def main():
             # cv_score = rand.best_score_
         else:
             # Fit once for cv, then refit on all train (GridSearchCV would refit automatically)
-            cv_score = cross_val_score(model, X_train, y_train, cv=5, scoring=scoring_metric, n_jobs=n_jobs).mean()
+            cv_score = cross_val_score(model, X_train, y_train, cv=3, scoring=scoring_metric, n_jobs=n_jobs).mean()
             best_estimator = model
             best_estimator.fit(X_train, y_train)
             best_params = {}
